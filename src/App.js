@@ -47,7 +47,7 @@ function App() {
     else {
       setFlag(false);
     }    
-    fetch(`http://www.omdbapi.com/?type=movie&s=${moviename}&apikey=ec2d23f3`)
+    fetch(`https://www.omdbapi.com/?type=movie&s=${moviename}&apikey=ec2d23f3`)
     .then((success) => { return success.json(); })
     .then((result) => { 
       if(result.Response === "True"){
