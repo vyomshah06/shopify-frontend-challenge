@@ -51,7 +51,11 @@ function App() {
     }
     else {
       setFlag(false);
+<<<<<<< HEAD
     }            
+=======
+    }    
+>>>>>>> 7798ca5d53392340941519c9602f1e0e55270623
     fetch(`https://www.omdbapi.com/?type=movie&s=${moviename}&apikey=ec2d23f3`)
     .then((success) => { return success.json(); })
     .then((result) => { 
