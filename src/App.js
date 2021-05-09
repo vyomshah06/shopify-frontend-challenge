@@ -2,8 +2,7 @@
 import './App.css';
 import { Search } from 'react-bootstrap-icons';
 import {useState} from 'react';
-import { Grid, Paper } from '@material-ui/core';
-import { Alert } from '@material-ui/lab'
+import { Grid, Paper, Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
 
 function App() {
 
@@ -14,6 +13,7 @@ function App() {
   const [nominate, setNominate] = useState(false);
   const [count, setCount] = useState(0);
   const [error, setError] = useState(false);
+  const [openDialog, setOpenDialog] = useState(true);
 
   const handleChange = ({target}) => {    
     setMovieName(target.value);    
@@ -22,17 +22,22 @@ function App() {
   const addNomination=(val) => {     
     setNominations(nominations.concat(movies[val])); 
     setNominate(true);
-    setCount(count + 1);       
+    setCount(count + 1); 
+    setOpenDialog(true);
   }
 
   const removeNomination=(val) => {
     const removeList = nominations.filter((item) => item.imdbID !== val);
 
     setNominations(removeList);
-    setCount(count - 1);
+    setCount(count - 1);    
+    setOpenDialog(true);
   }  
 
-  const checkNomination=(movie) => {         
+  const checkNomination=(movie) => { 
+    if(count === 5) {
+      return true;
+    }    
     let b = nominations.some(item => {
         if(item.imdbID === movie.imdbID) {
          return true;
@@ -40,10 +45,10 @@ function App() {
         else {
           return false;
         }
-    });       
+    });           
     return b;
   }
-
+  
   const handleSubmit=(event) => {    
     event.preventDefault();        
     if(moviename) {
@@ -72,10 +77,7 @@ function App() {
       <Grid container spacing={2} className="container">          
         <Grid item xs={12}>
           <h2>The Shoppies</h2>
-        </Grid>
-        {
-          (count >= 5) && <Alert severity="info" className="alert"> You have selected {count} movie nominations!</Alert>
-        }                                
+        </Grid>        
         <Grid item xs={12}> 
           <Paper className="searchPaper">
             <form id="myForm">
@@ -139,6 +141,22 @@ function App() {
           </Grid> 
         </Grid>                  
       </Grid>
+
+      {
+          (count === 5) &&
+          <Dialog  open={openDialog}>
+            <DialogTitle>
+              Thank You for Nominations!
+            </DialogTitle>
+            <DialogContent dividers>
+              <p> You have selected maximum {count} movie nominations.</p>
+            </DialogContent>    
+            <DialogActions>   
+              <button onClick={() => {setOpenDialog(false)}}> OK </button>               
+            </DialogActions>
+          </Dialog>       
+        }
+
     </div>
   );
 }
