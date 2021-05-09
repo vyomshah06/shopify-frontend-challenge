@@ -10,7 +10,7 @@ function App() {
   const [moviename, setMovieName] = useState();
   const [flag, setFlag] = useState(false);
   const [movies, setMovies] = useState([]);
-  const [nominations, setNominations] = useState({});  
+  const [nominations, setNominations] = useState([]);  
   const [nominate, setNominate] = useState(false);
   const [count, setCount] = useState(0);
   const [error, setError] = useState(false);
@@ -19,35 +19,40 @@ function App() {
     setMovieName(target.value);    
   }
 
-  const handleNomination=(val) => {                    
-    if(!nominations[val]) {
-      setCount(count + 1);
-      setNominations((prev) => ({
-        ...prev,
-        [val]: true
-      }));
-      setNominate(true);
-    }
-    else {
-      setCount(count - 1);
-      setNominations((prev) => ({
-        ...prev,
-        [val]: false
-      }));
-    }        
+  const addNomination=(val) => {     
+    setNominations(nominations.concat(movies[val])); 
+    setNominate(true);
+    setCount(count + 1);       
+  }
+
+  const removeNomination=(val) => {
+    const removeList = nominations.filter((item) => item.imdbID !== val);
+
+    setNominations(removeList);
+    setCount(count - 1);
+  }  
+
+  const checkNomination=(movie) => {         
+    let b = nominations.some(item => {
+        if(item.imdbID === movie.imdbID) {
+         return true;
+        } 
+        else {
+          return false;
+        }
+    });       
+    return b;
   }
 
   const handleSubmit=(event) => {    
     event.preventDefault();        
     if(moviename) {
-      setFlag(true);
-      setNominations({});
-      setCount(0);
+      setFlag(true);            
     }
     else {
       setFlag(false);
-    }    
-    fetch(`http://www.omdbapi.com/?type=movie&s=${moviename}&apikey=ec2d23f3`)
+    }            
+    fetch(`https://www.omdbapi.com/?type=movie&s=${moviename}&apikey=ec2d23f3`)
     .then((success) => { return success.json(); })
     .then((result) => { 
       if(result.Response === "True"){
@@ -93,12 +98,12 @@ function App() {
                 <b>Results for "{moviename}"</b>
                 <ul>
                   {   
-                    movies.map(movie => {
+                    movies.map((movie, index) => {
                       return (                  
-                        <li key={movie.imdbID}>  
+                        <li key={index}>  
                           {movie.Title} ({movie.Year}) 
-                          <button onClick={() => handleNomination(movie.imdbID)} 
-                            disabled={nominations[movie.imdbID]} >Nominate</button>        
+                          <button onClick={() => addNomination(index)} 
+                            disabled={checkNomination(movie)} >Nominate</button>        
                         </li>
                       );
                     })
@@ -119,16 +124,13 @@ function App() {
                 <b>Nominations</b>
                 <ul>                  
                   {                    
-                    movies.map(movie => {                  
-                      if(nominations[movie.imdbID] === true) {
-                        return (
-                          <li key={movie.imdbID}> 
-                            {movie.Title} ({movie.Year})
-                            <button onClick={() => handleNomination(movie.imdbID)}>Remove</button>
-                          </li>
-                          );
-                      }
-                      return null;                      
+                    nominations.map(movie => {                                        
+                      return (
+                        <li key={movie.imdbID}> 
+                          {movie.Title} ({movie.Year})
+                          <button onClick={() => removeNomination(movie.imdbID)}>Remove</button>
+                        </li>
+                      );                      
                     })
                   }
                 </ul>              
